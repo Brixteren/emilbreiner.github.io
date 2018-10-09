@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+	<head>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	</head>
+	<body style="margin: 0px; background: black;">
+		<div class="flex-main">
+			<div class="query">
+				<input class="qinput" type="text" style="height: 50%; margin: 8px; border-radius: 5px;"></input>
+			</div>
+			<div>
+				<p style="color: white;" id="countdown"></p>
+			</div>
+			<div class="dropdown">
+				<button onclick="menuFunc()" class="dropbtn">Menu</button>
+				<div id="menu" class="dropdown-content">
+					<a href="index.html">Home</a>
+					<a href="#">About</a>
+					<a href="#">Contact</a>
+				</div>
+			</div>
+		</div>
+		<div id="slideshow" class="notLoaded"></div>
+	</body>
+	
+	<footer>
+		<style>
+			.dropbtn {
+				background-color: white;
+				color: black;
+				padding: 16px;
+				font-size: 16px;
+				border: none;
+				cursor: pointer;
+				border-radius: 4px;
+				margin: 8px;
+			}
+			
+			.dropbtn:hover, .dropbtn:focus {
+				background-color: #eff0f2;
+			}
+			
+			.dropdown {
+				position: relative;
+				display: inline-block;
+				float: right;
+			}
+			
+			.dropdown-content {
+				display: none;
+				position: absolute;
+				background-color: #f1f1f1;
+				min-width: 160px;
+				box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+				z-index: 1;
+				right: 0;
+			}
+			
+			.dropdown-content a {
+				color: black;
+				padding: 12px 16px;
+				text-decoration: none;
+				display: block;
+			}
+			
+			.flex-main{
+                display: flex;
+                justify-content:space-between;
+                align-content: center;
+                flex-wrap: wrap;
+				height: 8vh;
+			}
+			
+			img {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				height: 92vh;
+			}
+			
+			.dropdown-content a:hover {background-color: #ddd}
+			
+			.show {display:block;}
+		</style>
+		
+		<script>
+			$(window).on('load', function () {
+				document.getElementById('countdown').innerHTML = "Loading image..."
+				getImage();
+			});
+			
+			function getImage() {
+				var imageUrl;
+				
+				var queryInput = $('.qinput')[0].value;
+				
+				$.ajax({
+					type: "GET",
+					url: "https://api.unsplash.com/photos/random",
+					data: {
+						client_id: "9e3bc97b4cd9e65706eb1fa50b5c555f88a20fa3f4fdbaba5bf0861d4410fe47",
+						query: queryInput || "",
+						orientation: "portrait"
+					},
+					success: function(data) {
+						imageUrl = data.urls.regular;
+						nextSlide(imageUrl);
+					},
+					error: function() {
+						console.log("Something went terribly wrong");
+					}
+				});
+			};
+			
+			function nextSlide(url) {
+				var imgElm = document.createElement('img');
+				
+				$(imgElm).attr("src", url);
+				$(imgElm).hide();
+				
+				var parent = document.getElementById('slideshow');
+				
+				$(imgElm).bind('load', function () {
+					parent.appendChild(imgElm);
+					
+					count();
+					
+					if (document.getElementsByTagName('img').length > 1) {
+						$(document.getElementsByTagName('img')[0]).fadeOut(1000, function() {
+							$(document.getElementsByTagName('img')[0]).remove();
+							$(document.getElementsByTagName('img')[0]).fadeIn(1000);
+						});
+					} else {
+						$(document.getElementsByTagName('img')[0]).fadeIn(1000);
+					}
+					
+					if ($(parent).hasClass('notLoaded')) {
+						$(parent).removeClass('notLoaded');
+					}
+				});
+				
+				timeout();
+			};
+			
+			function count() {
+				var tmp = new Date().getTime();
+				var countDownDate = tmp + 121000;
+				var x = setInterval(function() {
+					var now = new Date().getTime();
+					
+					var distance = countDownDate - now;
+					var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+					var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+					
+					if (minutes > 0) {
+						document.getElementById('countdown').innerHTML = minutes + " minute and " + seconds + " seconds to next picture";
+					} else {
+						document.getElementById('countdown').innerHTML = seconds + " seconds to next picture";
+					}
+					
+					if (distance < 0) {
+						clearInterval(x);
+						document.getElementById('countdown').innerHTML = "Loading next image..."
+					}
+				}, 1000);
+			}
+			
+			function timeout() {
+				setTimeout(function() {
+					getImage();
+					
+					timeout();
+				}, 121000);
+			};
+		
+			function menuFunc() {
+				if ($('#menu').hasClass('show')) {
+					$('#menu').removeClass('show');
+				}
+				else {
+				$('#menu').addClass('show');
+				}
+			};
+			
+			window.onclick = function (event) {
+				if (!event.target.matches('.dropbtn')) {
+					var dropdown = document.getElementsByClassName('dropdown-content');
+					for (var i = 0; i < dropdown.length; i++) {
+						var openDropdown = dropdown[i];
+						if ($(openDropdown).hasClass('show')) {
+							$(openDropdown).removeClass('show');
+						}
+					}
+				}
+			};
+		</script>
+	</footer>
+</html>
