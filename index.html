@@ -21,7 +21,9 @@
 				</div>
 			</div>
 		</div>
-		<div id="slideshow" class="notLoaded"></div>
+		<div id="slideshow">
+			<div class="loader"></div>
+		</div>
 	</body>
 	
 	<footer>
@@ -65,10 +67,10 @@
 			}
 			
 			.flex-main{
-                display: flex;
-                justify-content:space-between;
-                align-content: center;
-                flex-wrap: wrap;
+                		display: flex;
+                		justify-content:space-between;
+                		align-content: center;
+                		flex-wrap: wrap;
 				height: 8vh;
 			}
 			
@@ -77,6 +79,20 @@
 				margin-left: auto;
 				margin-right: auto;
 				height: 92vh;
+			}
+			
+			.loaded {
+				display: none;
+			}
+			
+			@-webkit-keyframes spin {
+				0% { -webkit-transform: rotate(0deg); }
+				100% { -webkit-transform: rotate(360deg); }
+			}
+			
+			@keyframes spin {
+				0% { transform: rotate(0deg); }
+				100% { transform: rotate(360deg); }
 			}
 			
 			.dropdown-content a:hover {background-color: #ddd}
@@ -134,8 +150,8 @@
 						$(document.getElementsByTagName('img')[0]).fadeIn(1000);
 					}
 					
-					if ($(parent).hasClass('notLoaded')) {
-						$(parent).removeClass('notLoaded');
+					if (!$(document.getElementsByClassName('loader')[0]).hasClass('loaded')) {
+						$(document.getElementsByClassName('loader')[0]).addClass('loaded');
 					}
 				});
 				
@@ -185,11 +201,9 @@
 			window.onclick = function (event) {
 				if (!event.target.matches('.dropbtn')) {
 					var dropdown = document.getElementsByClassName('dropdown-content');
-					for (var i = 0; i < dropdown.length; i++) {
-						var openDropdown = dropdown[i];
-						if ($(openDropdown).hasClass('show')) {
-							$(openDropdown).removeClass('show');
-						}
+					var openDropdown = dropdown[0];
+					if ($(openDropdown).hasClass('show')) {
+						$(openDropdown).removeClass('show');
 					}
 				}
 			};
