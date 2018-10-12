@@ -2,22 +2,25 @@
 <html>
 	<head>
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-		<title>ImgGen - Home</title>
 	</head>
 	<body style="margin: 0px; background: black;">
 		<div class="flex-main">
 			<div class="query">
-				<input class="qinput" type="text" style="height: 50%; margin: 8px; border-radius: 5px;"></input>
+				<input class="qinput" type="text" style="height: 50%; margin: 8px; border-radius: 5px;">
+				<div class="radios">
+					<input class="sourceCheck" type="radio" name="source" value="unsplash" onclick="getImage();">Unsplash
+					<input class="sourceCheck" type="radio" name="source" value="pixabay" onclick="getImage();">Pixabay			
+				</div>
 			</div>
 			<div>
-				<p style="color: white;" id="countdown"></p>
+				<p style="color: white; margin-right: 200px;" id="countdown"></p>
 			</div>
 			<div class="dropdown">
 				<button onclick="menuFunc()" class="dropbtn">Menu</button>
 				<div id="menu" class="dropdown-content">
 					<a href="index.html">Home</a>
-					<a href="about.html">About</a>
-					<a href="contact.html">Contact</a>
+					<a href="#">About</a>
+					<a href="#">Contact</a>
 				</div>
 			</div>
 		</div>
@@ -67,10 +70,10 @@
 			}
 			
 			.flex-main{
-                		display: flex;
-                		justify-content:space-between;
-                		align-content: center;
-                		flex-wrap: wrap;
+                display: flex;
+                justify-content:space-between;
+                align-content: center;
+                flex-wrap: wrap;
 				height: 8vh;
 			}
 			
@@ -81,8 +84,25 @@
 				height: 92vh;
 			}
 			
+			.loader {
+				margin-left: 47%;
+				margin-top: 20%;
+				border: 16px solid #f3f3f3;
+				border-radius: 50%;
+				border-top: 16px solid grey;
+				width: 80px;
+				height: 80px;
+				-webkit-animation: spin 1s linear infinite; /* Safari */
+				animation: spin 1s linear infinite;
+			}
+			
 			.loaded {
 				display: none;
+			}
+			
+			.radios {
+				display: inline;
+				color: white;
 			}
 			
 			@-webkit-keyframes spin {
@@ -101,31 +121,76 @@
 		</style>
 		
 		<script>
-			$(window).on('load', function () {
-				getImage();
-			});
+			var timeoutTime;
 			
 			function getImage() {
 				var imageUrl;
 				
-				var queryInput = $('.qinput')[0].value;
-				
-				$.ajax({
-					type: "GET",
-					url: "https://api.unsplash.com/photos/random",
-					data: {
-						client_id: "9e3bc97b4cd9e65706eb1fa50b5c555f88a20fa3f4fdbaba5bf0861d4410fe47",
-						query: queryInput || "",
-						orientation: "portrait"
-					},
-					success: function(data) {
-						imageUrl = data.urls.regular;
-						nextSlide(imageUrl);
-					},
-					error: function() {
-						console.log("Something went terribly wrong");
+				var radios = document.getElementsByName('source');
+
+				for (var i = 0, length = radios.length; i < length; i++)
+					{
+						if (radios[i].checked)
+					{
+						// do whatever you want with the checked radio
+						var radioValue = radios[i].value;
+					
+						// only one radio can be logically checked, don't check the rest
+						break;
 					}
-				});
+				}
+				
+				switch(radioValue) {
+					case "pixabay":
+						timeoutTime = 30000;
+						var queryInput = $('.qinput')[0].value;
+						
+						$.ajax({
+							type: "GET",
+							url: "https://pixabay.com/api/",
+							data: {
+								key: "10367738-59c3f4dedf85a08e4830da4d4",
+								q: encodeURIComponent(queryInput) || "",
+								orientation: "vertical"
+							},
+							success: function(data) {
+								var indx = Math.floor(Math.random() * data.hits.length);
+								imageUrl = data.hits[indx].largeImageURL;
+								if (imageUrl != null) {
+									nextSlide(imageUrl);
+								}
+							},
+							error: function() {
+								console.log("Something went terribly wrong");
+							}
+						});
+						
+						break;
+					
+					case "unsplash":
+						timeoutTime = 121000;
+						
+						$.ajax({
+							type: "GET",
+							url: "https://api.unsplash.com/photos/random",
+							data: {
+								client_id: "9e3bc97b4cd9e65706eb1fa50b5c555f88a20fa3f4fdbaba5bf0861d4410fe47",
+								query: queryInput || "",
+								orientation: "portrait"
+							},
+							success: function(data) {
+								imageUrl = data.urls.regular;
+								nextSlide(imageUrl);
+							},
+							error: function() {
+								console.log("Something went terribly wrong");
+							}
+						});
+						break;
+					
+					default:
+						break;
+				}
 			};
 			
 			function nextSlide(url) {
@@ -160,7 +225,7 @@
 			
 			function count() {
 				var tmp = new Date().getTime();
-				var countDownDate = tmp + 121000;
+				var countDownDate = tmp + timeoutTime;
 				var x = setInterval(function() {
 					var now = new Date().getTime();
 					
@@ -186,7 +251,7 @@
 					getImage();
 					
 					timeout();
-				}, 121000);
+				}, timeoutTime);
 			};
 		
 			function menuFunc() {
@@ -194,7 +259,7 @@
 					$('#menu').removeClass('show');
 				}
 				else {
-				$('#menu').addClass('show');
+					$('#menu').addClass('show');
 				}
 			};
 			
